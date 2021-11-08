@@ -2,6 +2,7 @@ import random
 import math
 import numpy as np
 
+NUMPY_PRECISION = 2
 
 class SA(object):
     def __init__(self, num_city, data):
@@ -18,6 +19,15 @@ class SA(object):
         init_pathlen = 1. / self.compute_pathlen(self.fire, self.dis_mat)
         # init_best = self.location[self.fire]
         self.iter_x = [0]
+        self.iter_y = [1. / init_pathlen]
+
+    def reset(self, fire):
+        self.T0 = 4000
+        self.scores = []
+        self.fire = fire
+        self.fires = []
+        self.iter_x = [0]
+        init_pathlen = 1. / self.compute_pathlen(self.fire, self.dis_mat)
         self.iter_y = [1. / init_pathlen]
 
     def greedy_init(self, dis_mat, num_total, num_city):
@@ -66,7 +76,7 @@ class SA(object):
                 a = location[i]
                 b = location[j]
                 tmp = np.sqrt(sum([(x[0] - x[1]) ** 2 for x in zip(a, b)]))
-                dis_mat[i][j] = tmp
+                dis_mat[i][j] = np.round(tmp, NUMPY_PRECISION)
         return dis_mat
 
     def compute_pathlen(self, path, dis_mat):
@@ -122,9 +132,9 @@ class SA(object):
             self.T0 *= self.rate
             self.iter_x.append(count)
             self.iter_y.append(best_length)
-            print(count, best_length)
         return best_length, best_path
 
     def run(self):
         best_length, best_path = self.sa()
-        return self.location[best_path], best_length
+        # return self.location[best_path], best_length
+        return best_path, best_length

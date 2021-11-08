@@ -5,6 +5,7 @@ import random
 import numpy
 from itertools import combinations
 from datetime import datetime
+import simulated_annealing as sa
 
 NUMPY_PRECISION = 2
 numpy.set_printoptions(precision=NUMPY_PRECISION)
@@ -20,12 +21,13 @@ def randomize_tour(length):
     return tour
 
 
-class ILS():
-    # def __init__(self, file_path):
+class ILS:
     def __init__(self, num_city, data):
         self.data = data
+        self.num_city = num_city
         self.iteration_limit = 200
-        self.alternative = False
+        self.alternative = True
+        self.is_SA_enabled = False
         self.idle_limit = 50
 
         self.dist_matrix = None
@@ -36,6 +38,7 @@ class ILS():
         self.alternative_counter = []
         self.iter_x = []
         self.iter_y = []
+        self.model = sa.SA(num_city=num_city, data=data)
 
     def reset(self):
         self.iterations = 0
@@ -46,7 +49,7 @@ class ILS():
         self.iter_x = []
         self.iter_y = []
 
-    def setParameters(self, iteration_limit, alternative, idle_limit):
+    def set_parameters(self, iteration_limit, alternative, idle_limit):
         self.iteration_limit = iteration_limit
         self.idle_limit = idle_limit
         self.alternative = alternative
@@ -75,7 +78,8 @@ class ILS():
         """Source: Algorithm3 from http://www.scielo.br/scielo.php?script=sci_arttext&pid=S2238-10312014000400010"""
         solution = {'tour': [], 'distance': 0, 'iteration': 0}
         # initial solution starting at 0
-        solution['tour'] = randomize_tour(len(self.data))
+        # solution['tour'] = randomize_tour(len(self.data))
+        solution['tour'] = self.model.greedy_init(self.dist_matrix, 100, self.num_city)
         solution['distance'] = self.calculate_tour_distance(solution['tour'])
 
         solution = self.local_search_wrapper(solution)
@@ -85,7 +89,6 @@ class ILS():
         self.iterations += 1
 
         for i in range(1, iteration_limit):
-            # self.emit(SIGNAL("iter"), self.iterations)
             new_solution = self.perturbation(solution)
             new_solution = self.local_search_wrapper(new_solution)
             if new_solution['distance'] < solution['distance']:
@@ -114,10 +117,20 @@ class ILS():
 
     def local_search_wrapper(self, solution):
         """this wrapper is used to change local search mode"""
-        if not self.alternative:
+        if self.is_SA_enabled:
+            return self.simulated_annealing(solution)
+        elif not self.alternative:
             return self.local_search(solution)
         else:
             return self.local_search_alt(solution, self.idle_limit)
+
+    def simulated_annealing(self, solution):
+        local_opt = solution
+        self.model.reset(solution['tour'])
+        path, path_len = self.model.run()
+        local_opt['distance'] = path_len
+        local_opt['tour'] = path
+        return local_opt
 
     def local_search(self, solution):
         local_opt = solution

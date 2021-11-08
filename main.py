@@ -3,7 +3,7 @@ import math
 import numpy as np
 # import simulated_annealing as sa
 import iterated_local_search as ils
-# import tabu_search as tb
+import tabu_search as tb
 import matplotlib.pyplot as plt
 from datetime import datetime
 import csv
@@ -35,14 +35,14 @@ def read_tsp(path):
     return data
 
 if __name__=='__main__':
-    data = read_tsp(r'./input/tsp10.txt')
-    f = open('./output_ils/out10.csv', 'w')
+    # data = read_tsp(r'./input/tsp10.txt')
+    # f = open('./output_ils/out10.csv', 'w')
 
     # data = read_tsp(r'./input/tsp100.txt')
     # f = open('./output_ils/out100.csv', 'w')
 
-    # data = read_tsp(r'./input/tsp1000.txt')
-    # f = open('./output_ils/out1000.csv', 'w')
+    data = read_tsp(r'./input/tsp1000.txt')
+    f = open('./output_ils/out1000.csv', 'w')
 
     data = np.array(data)
     data = data[:, 1:]
@@ -50,11 +50,7 @@ if __name__=='__main__':
     Best, Best_path = math.inf, None
 
     # model = sa.SA(num_city=data.shape[0], data=data.copy())
-    # path, path_len = model.run()
-
-    # model = tb.Tabu()
-    # path, path_len = model.run()
-    
+    model = tb.Tabu(num_city=data.shape[0], data=data.copy())
     process = psutil.Process(os.getpid())
     model = ils.ILS(num_city=data.shape[0], data=data.copy())
 
