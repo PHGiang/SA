@@ -1,7 +1,7 @@
 import random
 import math
 import numpy as np
-# import simulated_annealing as sa
+import simulated_annealing as sa
 import iterated_local_search as ils
 import tabu_search as tb
 import matplotlib.pyplot as plt
@@ -50,11 +50,11 @@ if __name__=='__main__':
     Best, Best_path = math.inf, None
 
     # model = sa.SA(num_city=data.shape[0], data=data.copy())
-    model = tb.Tabu(num_city=data.shape[0], data=data.copy())
+    # model = tb.Tabu(num_city=data.shape[0], data=data.copy())
     process = psutil.Process(os.getpid())
     model = ils.ILS(num_city=data.shape[0], data=data.copy())
 
-    no_iterations = 10
+    no_iterations = 1
     tsp_runtime = []
     tsp_memory = []
     tsp_path_len = []
@@ -73,30 +73,30 @@ if __name__=='__main__':
         row = [['iteration ', i], [path_len], path, [runtime.microseconds], [used_mem], model.iter_y]
         writer.writerows(row)
         writer.writerow(sep)
-        # if path_len < Best:
-        #     Best = path_len
-        #     Best_path = path
+        if path_len < Best:
+            Best = path_len
+            Best_path = path
         Best_path = path 
         Best_path = np.vstack([Best_path, Best_path[0]])
 
-    #     plot1 = plt.figure()
-    #     plt.scatter(Best_path[:, 0], Best_path[:,1])
-    #     plt.plot(Best_path[:, 0], Best_path[:, 1], 'ro', Best_path[:, 0], Best_path[:, 1])
-    #     plt.title('Optimization tour of TSP 10 - ILS')
-    #     plt.xlabel(f'Total mileage of the tour: {path_len}')
-    #     plt.pause(0.05)
+        plot1 = plt.figure()
+        plt.scatter(Best_path[:, 0], Best_path[:,1])
+        plt.plot(Best_path[:, 0], Best_path[:, 1], 'ro', Best_path[:, 0], Best_path[:, 1])
+        plt.title('Optimization tour of TSP 10 - ILS')
+        plt.xlabel(f'Total mileage of the tour: {path_len}')
+        plt.pause(0.05)
     #     #
 
-    #     plot2 = plt.figure()
-    #     iterations = model.iter_x
-    #     best_record = model.iter_y
-    #     plt.plot(iterations, best_record)
-    #     plt.title('Optimization result of TSP 10 - ILS')
-    #     plt.xlabel('Iterations')
-    #     plt.ylabel('Mileage of tour')
-    #     plt.pause(0.05)
+        plot2 = plt.figure()
+        iterations = model.iter_x
+        best_record = model.iter_y
+        plt.plot(iterations, best_record)
+        plt.title('Optimization result of TSP 10 - ILS')
+        plt.xlabel('Iterations')
+        plt.ylabel('Mileage of tour')
+        plt.pause(0.05)
         
-    # plt.show()
+    plt.show()
     writer.writerow('==== Summation =======')
     writer.writerows([tsp_path_len, tsp_runtime, tsp_memory])
     f.close()

@@ -25,9 +25,9 @@ class ILS:
     def __init__(self, num_city, data):
         self.data = data
         self.num_city = num_city
-        self.iteration_limit = 200
+        self.iteration_limit = 500
         self.alternative = True
-        self.is_SA_enabled = False
+        self.is_SA_enabled = True
         self.idle_limit = 50
 
         self.dist_matrix = None
@@ -78,8 +78,8 @@ class ILS:
         """Source: Algorithm3 from http://www.scielo.br/scielo.php?script=sci_arttext&pid=S2238-10312014000400010"""
         solution = {'tour': [], 'distance': 0, 'iteration': 0}
         # initial solution starting at 0
-        # solution['tour'] = randomize_tour(len(self.data))
-        solution['tour'] = self.model.greedy_init(self.dist_matrix, 100, self.num_city)
+        solution['tour'] = randomize_tour(len(self.data))
+        # solution['tour'] = self.model.greedy_init(self.dist_matrix, 100, self.num_city)
         solution['distance'] = self.calculate_tour_distance(solution['tour'])
 
         solution = self.local_search_wrapper(solution)
